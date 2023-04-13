@@ -1,3 +1,4 @@
+using System.Linq;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace api
 {
@@ -15,9 +17,10 @@ namespace api
         [FunctionName("garytest")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+            ILogger log, ClaimsPrincipal claimsPrincipal)
         {
-            return new OkObjectResult(new { Ok = "Aye" });
+            var identity = claimsPrincipal.Identity as ClaimsIdentity;
+            return new OkObjectResult(new { Ok = "Aye", claims = identity.Claims.Select(c => new { c.Type, c.Value }) });
         }
     }
 }
